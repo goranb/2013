@@ -3,8 +3,19 @@
 <head>
 <title>Happy Holidays!</title>
 </head>
-<body style="margin: 0; padding: 0; background-color: #cff; overflow: hidden;">
-<img src="card.jpg" title="Happy Holidays! Sretni Blagdani!" id="card">
+<body style="
+  margin: 0;
+  padding: 0;
+  background-color: #cff;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  background-image:
+  url(card.jpg);
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+">
 <script type="text/javascript" src="three.min.js"></script>
 <script src="helvetiker_regular.typeface.js"></script>
 <script type="text/javascript">
@@ -15,28 +26,25 @@
 	var canvas = !! window.CanvasRenderingContext2D;
 	var webgl = ( function () { try { return !! window.WebGLRenderingContext && !! document.createElement( 'canvas' ).getContext( 'experimental-webgl' ); } catch( e ) { return false; } } )();
 	if (webgl) renderer = new THREE.WebGLRenderer({antialias: true});
-	
-  	if (renderer) {
 
-		var img = document.getElementById("card");;
-		img.parentNode.removeChild(img);
+  	if (renderer) {
 
 		/*
 		*	SETUP SCENE
 		*/
 
 		var sphereSize = 100;
-	
+
 		var scene = new THREE.Scene();
 		var camera = new THREE.PerspectiveCamera(55, window.innerWidth/window.innerHeight, 0.1, 10000);
-		var mouseX = 0, mouseY = 0;	
-	
+		var mouseX = 0, mouseY = 0;
+
 		scene.add(camera);
 		camera.position.z = 50;
 		renderer.setSize(window.innerWidth, window.innerHeight);
-		renderer.setClearColorHex(0xCCFFFF, 1);		
+		renderer.setClearColorHex(0xCCFFFF, 1);
 		document.body.appendChild(renderer.domElement);
-	
+
 		var grassMaterial = new THREE.LineBasicMaterial({
 	        color: 0x005500,
 			linewidth: 5
@@ -44,7 +52,7 @@
 	    var grass = new THREE.Object3D();
 		for(var i = 0; i < 50; i++){
 			var g = new THREE.Geometry();
-			var p = randomPoint();						
+			var p = randomPoint();
 			g.vertices.push(new THREE.Vector3(sphereSize / 2 * p.x, sphereSize / 2 * p.y, sphereSize / 2 * p.z));
 			var grassLength = sphereSize + Math.random() * 2;
 			g.vertices.push(new THREE.Vector3(grassLength * p.x, grassLength * p.y, grassLength * p.z));
@@ -75,12 +83,12 @@
 		gogo.model.position.x = 10;
 
 
-	
+
 
 		// add subtle ambient lighting
         var ambientLight = new THREE.AmbientLight(0x444444);
         scene.add(ambientLight);
- 
+
         // add directional light source
         var directionalLight1 = new THREE.DirectionalLight(0x777777);
         directionalLight1.position.set(-3, 2, 5).normalize();
@@ -126,14 +134,14 @@
 		text_1.position.z = text_2.position.z = -10;
 		scene.add(text_1);
 		scene.add(text_2);
-		
+
 		/*
 		*	INIT LISTENERS
 		*/
-			
+
 		window.addEventListener( 'resize', onWindowResize, false );
 		document.addEventListener( 'mousemove', onDocumentMouseMove, false );
-			
+
 		document.addEventListener('mousedown', function(){ console.debug(camera.position.x) });
 		animate();
 
@@ -153,7 +161,7 @@
 		mouseY = ( event.clientY - window.innerHeight / 2 ) / window.innerHeight;
 	}
 
-		
+
 	function onWindowResize() {
 		camera.aspect = window.innerWidth / window.innerHeight;
 		camera.updateProjectionMatrix();
@@ -166,17 +174,17 @@
 	}
 
 
-	
+
 	function render() {
-		
+
 		var xA = mouseX * Math.PI / 3;
-		var yA = - mouseY * Math.PI / 4;		
+		var yA = - mouseY * Math.PI / 4;
 		camera.position.x = 100 * Math.sin(xA);
 		camera.position.z = 100 * Math.cos(xA); // * Math.cos(yA);
 		camera.position.y = 100 * Math.sin(yA);
 		text_1.position.x = centerOffset_1 - camera.position.x - 30;
 		text_2.position.x = centerOffset_2 - camera.position.x + 30;
-		
+
 		camera.lookAt( cameraTarget.position);
 		katie.head.lookAt( camera.position );
 		gogo.head.lookAt( camera.position );
@@ -185,14 +193,14 @@
 		var walk = Date.now() * 0.006;
 		katie.legR.rotation.x = gogo.legR.rotation.x = 0 - (katie.legL.rotation.x = gogo.legL.rotation.x = Math.cos(walk));
 		katie.model.position.y = gogo.model.position.y = Math.abs(Math.cos(walk));
-	
+
 		// kative wave
-		var wave1 = Date.now() * 0.003;		
+		var wave1 = Date.now() * 0.003;
 		katie.armR.rotation.z = - Math.PI / 5 * 3 + Math.cos(wave1) / 2;
 		katie.armR.position.x = -6 + 1 * Math.abs(Math.sin(katie.armR.rotation.z));
 
 		// gogo wave
-		var wave2 = Date.now() * 0.0028;				
+		var wave2 = Date.now() * 0.0028;
 		gogo.armL.rotation.z = Math.PI / 5 * 3 + Math.cos(wave2) / 2;
 		gogo.armL.position.x = 6 - 1 * Math.sin(gogo.armL.rotation.z);
 
@@ -224,8 +232,8 @@
 	/*
 	*	MINECRAFT MODEL
 	*/
-	
-	
+
+
 	function MinecraftModel(skin, scene){
 
 		this.model = new THREE.Object3D();
@@ -266,7 +274,7 @@
 			if( !rotateBy )	rotateBy = 0;
 			var uvs = geometry.faceVertexUvs[0][face];
 			var tileU = x;
-			var tileV = y;			
+			var tileV = y;
 			uvs[ (0 + rotateBy) % 4 ].u = tileU * tileUvW;
 			uvs[ (0 + rotateBy) % 4 ].v = tileV * tileUvH;
 			uvs[ (1 + rotateBy) % 4 ].u = tileU * tileUvW;
@@ -276,17 +284,17 @@
 			uvs[ (3 + rotateBy) % 4 ].u = tileU * tileUvW + w * tileUvW;
 			uvs[ (3 + rotateBy) % 4 ].v = tileV * tileUvH;
 		};
-		
+
 		var tileUvW	= 1/canvas.width;
 		var tileUvH	= 1/canvas.height;
-			
+
 		////////////////////////////////////////////////////////////////////////
 		// Left leg
 		var legLgeo	= new THREE.CubeGeometry(4, 12, 4);
 		for(var i=0; i < 8; i+=1) {
 			legLgeo.vertices[i].y -= 6;
 		}
-		
+
 		this.legL = new THREE.Mesh(legLgeo, material);
 		this.legL.position.x =  2;
 		this.legL.position.y = -6;
@@ -297,7 +305,7 @@
 		uvmap(legLgeo, 1, 12, 20, -4, 12);
 		uvmap(legLgeo, 0,  4, 20, -4, 12);
 		this.model.add(this.legL);
-		
+
 		////////////////////////////////////////////////////////////////////////
 		// Right leg
 		var legRgeo	= new THREE.CubeGeometry(4, 12, 4);
@@ -313,7 +321,7 @@
 		uvmap(legRgeo, 3, 12, 20, -4, -4, 1);
 		uvmap(legRgeo, 1,  0, 20,  4, 12);
 		uvmap(legRgeo, 0,  8, 20,  4, 12);
-		this.model.add(this.legR);	
+		this.model.add(this.legR);
 
 		////////////////////////////////////////////////////////////////////////
 		// Body
@@ -326,7 +334,7 @@
 		uvmap(bodygeo, 1, 16, 20, 4, 12);
 		uvmap(bodygeo, 0, 28, 20, 4, 12);
 		this.model.add(this.body);
-		
+
 		////////////////////////////////////////////////////////////////////////
 		// Left arm
 		var armLgeo	= new THREE.CubeGeometry(4, 12, 4);
@@ -345,7 +353,7 @@
 		uvmap(armLgeo, 1, 52, 20, -4, 12);
 		uvmap(armLgeo, 0, 44, 20, -4, 12);
 		this.model.add(this.armL);
-		
+
 		////////////////////////////////////////////////////////////////////////
 		// Right arm
 		var armRgeo	= new THREE.CubeGeometry(4, 12, 4);
@@ -371,12 +379,12 @@
 		//this.head.rotation.y = -Math.PI/2;
 		uvmap(headgeo, 4,  8, 8, 8, 8); // left 5 // face 0
 		uvmap(headgeo, 5, 24, 8, 8, 8); // right 4 // back 1
-		uvmap(headgeo, 2,  8, 0, 8, 8, 0); //top 2 // top 2 ++ 
+		uvmap(headgeo, 2,  8, 0, 8, 8, 0); //top 2 // top 2 ++
 		uvmap(headgeo, 3, 16, 0, 8, 8, 0); // bottom 3 // bottom 3
 		uvmap(headgeo, 1, 0, 8, 8, 8); // face 0 // right 4
 		uvmap(headgeo, 0, 16, 8, 8, 8); // back 1 // left 5
 		this.model.add(this.head);
-		
+
 	}
 
 </script>
