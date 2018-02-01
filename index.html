@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Happy Holidays!</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #cff; overflow: hidden;">
+<img src="card.jpg" title="Happy Holidays! Sretni Blagdani!" id="card">
+<script type="text/javascript" src="three.min.js"></script>
+<script src="helvetiker_regular.typeface.js"></script>
+<script type="text/javascript">
+
+	/*
+	*	INIT RENDERER
+	*/
+	var canvas = !! window.CanvasRenderingContext2D;
+	var webgl = ( function () { try { return !! window.WebGLRenderingContext && !! document.createElement( 'canvas' ).getContext( 'experimental-webgl' ); } catch( e ) { return false; } } )();
+	if (webgl) renderer = new THREE.WebGLRenderer({antialias: true});
+	
+  	if (renderer) {
+
+		var img = document.getElementById("card");;
+		img.parentNode.removeChild(img);
+
+		/*
+		*	SETUP SCENE
+		*/
+
+		var sphereSize = 100;
+	
+		var scene = new THREE.Scene();
+		var camera = new THREE.PerspectiveCamera(55, window.innerWidth/window.innerHeight, 0.1, 10000);
+		var mouseX = 0, mouseY = 0;	
+	
+		scene.add(camera);
+		camera.position.z = 50;
+		renderer.setSize(window.innerWidth, window.innerHeight);
+		renderer.setClearColorHex(0xCCFFFF, 1);		
+		document.body.appendChild(renderer.domElement);
+	
+		var grassMaterial = new THREE.LineBasicMaterial({
+	        color: 0x005500,
+			linewidth: 5
+    	});
+	    var grass = new THREE.Object3D();
+		for(var i = 0; i < 50; i++){
+			var g = new THREE.Geometry();
+			var p = randomPoint();						
+			g.vertices.push(new THREE.Vector3(sphereSize / 2 * p.x, sphereSize / 2 * p.y, sphereSize / 2 * p.z));
+			var grassLength = sphereSize + Math.random() * 2;
+			g.vertices.push(new THREE.Vector3(grassLength * p.x, grassLength * p.y, grassLength * p.z));
+			grass.add(new THREE.Line(g, grassMaterial))
+		}
+		scene.add(grass);
+
+
+		var floor = new THREE.Mesh(
+			new THREE.SphereGeometry(sphereSize, 18, 9),
+			new THREE.MeshLambertMaterial({color: 0x00CC00})
+		);
+		scene.add(floor);
+		floor.position.y = -17 - sphereSize;
+		floor.rotation.z = Math.PI/2;
+
+		var cameraTarget = new THREE.Object3D();
+		scene.add(cameraTarget);
+		cameraTarget.position.y = 7;
+
+		var katie = new MinecraftModel('katie.png');
+		scene.add(katie.model);
+		katie.model.position.x = -10;
+
+
+		var gogo = new MinecraftModel('gogo.png');
+		scene.add(gogo.model);
+		gogo.model.position.x = 10;
+
+
+	
+
+		// add subtle ambient lighting
+        var ambientLight = new THREE.AmbientLight(0x444444);
+        scene.add(ambientLight);
+ 
+        // add directional light source
+        var directionalLight1 = new THREE.DirectionalLight(0x777777);
+        directionalLight1.position.set(-3, 2, 5).normalize();
+        scene.add(directionalLight1);
+
+		// add directional light source
+        var directionalLight2 = new THREE.DirectionalLight(0x777777);
+        directionalLight2.position.set(3, 1, 5).normalize();
+        scene.add(directionalLight2);
+
+
+
+
+		text3d_1 = new THREE.TextGeometry( "HAPPY HOLIDAYS!", {
+			size: 8,
+			height: 1,
+			curveSegments: 1,
+			font: "helvetiker"
+		});
+		text3d_2 = new THREE.TextGeometry( "SRETNI BLAGDANI!", {
+			size: 8,
+			height: 1,
+			curveSegments: 1,
+			font: "helvetiker"
+		});
+
+
+		text3d_1.computeBoundingBox();
+		var centerOffset_1 = -0.5 * ( text3d_1.boundingBox.max.x - text3d_1.boundingBox.min.x );
+
+		text3d_2.computeBoundingBox();
+		var centerOffset_2 = -0.5 * ( text3d_2.boundingBox.max.x - text3d_2.boundingBox.min.x );
+
+		text_1 = new THREE.Mesh( text3d_1, new THREE.MeshBasicMaterial( { color: 0xCCCCFF, overdraw: true } ) );
+
+		text_2 = new THREE.Mesh( text3d_2, new THREE.MeshBasicMaterial( { color: 0XFFCCCC, overdraw: true } ) );
+
+
+		text_1.position.x = centerOffset_1 - 100;
+		text_2.position.x = centerOffset_2 + 100;
+		text_1.position.y = 35;
+		text_2.position.y = 22;
+		text_1.position.z = text_2.position.z = -10;
+		scene.add(text_1);
+		scene.add(text_2);
+		
+		/*
+		*	INIT LISTENERS
+		*/
+			
+		window.addEventListener( 'resize', onWindowResize, false );
+		document.addEventListener( 'mousemove', onDocumentMouseMove, false );
+			
+		document.addEventListener('mousedown', function(){ console.debug(camera.position.x) });
+		animate();
+
+
+	} else {
+		alert("You will need a newer browser (Firefox or Chrome) to see the animation.\n\nHappy holidays!");
+	}
+
+
+
+	/*
+	*	FUNCTIONS
+	*/
+
+	function onDocumentMouseMove( event ) {
+		mouseX = ( event.clientX - window.innerWidth / 2 ) / window.innerWidth;
+		mouseY = ( event.clientY - window.innerHeight / 2 ) / window.innerHeight;
+	}
+
+		
+	function onWindowResize() {
+		camera.aspect = window.innerWidth / window.innerHeight;
+		camera.updateProjectionMatrix();
+		renderer.setSize( window.innerWidth, window.innerHeight );
+	}
+
+	function animate() {
+		requestAnimationFrame( animate );
+		render();
+	}
+
+
+	
+	function render() {
+		
+		var xA = mouseX * Math.PI / 3;
+		var yA = - mouseY * Math.PI / 4;		
+		camera.position.x = 100 * Math.sin(xA);
+		camera.position.z = 100 * Math.cos(xA); // * Math.cos(yA);
+		camera.position.y = 100 * Math.sin(yA);
+		text_1.position.x = centerOffset_1 - camera.position.x - 30;
+		text_2.position.x = centerOffset_2 - camera.position.x + 30;
+		
+		camera.lookAt( cameraTarget.position);
+		katie.head.lookAt( camera.position );
+		gogo.head.lookAt( camera.position );
+
+		// walk and jump
+		var walk = Date.now() * 0.006;
+		katie.legR.rotation.x = gogo.legR.rotation.x = 0 - (katie.legL.rotation.x = gogo.legL.rotation.x = Math.cos(walk));
+		katie.model.position.y = gogo.model.position.y = Math.abs(Math.cos(walk));
+	
+		// kative wave
+		var wave1 = Date.now() * 0.003;		
+		katie.armR.rotation.z = - Math.PI / 5 * 3 + Math.cos(wave1) / 2;
+		katie.armR.position.x = -6 + 1 * Math.abs(Math.sin(katie.armR.rotation.z));
+
+		// gogo wave
+		var wave2 = Date.now() * 0.0028;				
+		gogo.armL.rotation.z = Math.PI / 5 * 3 + Math.cos(wave2) / 2;
+		gogo.armL.position.x = 6 - 1 * Math.sin(gogo.armL.rotation.z);
+
+		// holding hands
+		var wave3 =  Date.now() * 0.006;
+		katie.armL.rotation.z = 0 - (gogo.armR.rotation.z = - Math.PI / 15);
+		katie.armL.rotation.x = gogo.armR.rotation.x = Math.cos(wave3);
+
+		grass.position.y = -sphereSize - 17;
+		grass.rotation.x = floor.rotation.x -= 1 / sphereSize;
+		renderer.render( scene, camera );
+	}
+
+
+	function randomPoint(){
+	    var x = Math.random() - 0.5, y = Math.random() - 0.5, z = Math.random() - 0.5;
+    	var k = Math.sqrt(x*x + y*y + z*z);
+	    while (k < 0.2 || k > 0.3)
+    	{
+        	x = Math.random() - 0.5;
+	        y = Math.random() - 0.5;
+    	    z = Math.random() - 0.5;
+        	k = Math.sqrt(x*x + y*y + z*z);
+	    }
+    	return {x:x/k, y:y/k, z:z/k};
+	}
+
+
+	/*
+	*	MINECRAFT MODEL
+	*/
+	
+	
+	function MinecraftModel(skin, scene){
+
+		this.model = new THREE.Object3D();
+
+
+		var canvas = document.createElement('canvas');
+		canvas.width = 64;
+		canvas.height = 32;
+
+		var context	= canvas.getContext('2d');
+		context.translate(0, canvas.height);
+		context.scale(1, -1);
+
+		var material = getMaterial(canvas, false);
+
+		var image = new Image();
+		image.onload = function () {
+			context.clearRect(0, 0, canvas.width, canvas.height);
+			context.drawImage(image, 0, 0);
+			material.map.needsUpdate = true;
+		}.bind(this);
+		image.src = skin;
+
+		function getMaterial(image, transparent) {
+			var texture = new THREE.Texture(image);
+			texture.magFilter = THREE.NearestFilter;
+			texture.minFilter = THREE.NearestFilter;
+			texture.format = transparent ? THREE.RGBAFormat : THREE.RGBFormat;
+			texture.needsUpdate	= true;
+			var material = new THREE.MeshLambertMaterial({
+				map : texture,
+				transparent	: true
+			});
+			return material;
+		}
+
+		function uvmap (geometry, face, x, y, w, h, rotateBy) {
+			if( !rotateBy )	rotateBy = 0;
+			var uvs = geometry.faceVertexUvs[0][face];
+			var tileU = x;
+			var tileV = y;			
+			uvs[ (0 + rotateBy) % 4 ].u = tileU * tileUvW;
+			uvs[ (0 + rotateBy) % 4 ].v = tileV * tileUvH;
+			uvs[ (1 + rotateBy) % 4 ].u = tileU * tileUvW;
+			uvs[ (1 + rotateBy) % 4 ].v = tileV * tileUvH + h * tileUvH;
+			uvs[ (2 + rotateBy) % 4 ].u = tileU * tileUvW + w * tileUvW;
+			uvs[ (2 + rotateBy) % 4 ].v = tileV * tileUvH + h * tileUvH;
+			uvs[ (3 + rotateBy) % 4 ].u = tileU * tileUvW + w * tileUvW;
+			uvs[ (3 + rotateBy) % 4 ].v = tileV * tileUvH;
+		};
+		
+		var tileUvW	= 1/canvas.width;
+		var tileUvH	= 1/canvas.height;
+			
+		////////////////////////////////////////////////////////////////////////
+		// Left leg
+		var legLgeo	= new THREE.CubeGeometry(4, 12, 4);
+		for(var i=0; i < 8; i+=1) {
+			legLgeo.vertices[i].y -= 6;
+		}
+		
+		this.legL = new THREE.Mesh(legLgeo, material);
+		this.legL.position.x =  2;
+		this.legL.position.y = -6;
+		uvmap(legLgeo, 4,  8, 20, -4, 12);
+		uvmap(legLgeo, 5, 16, 20, -4, 12);
+		uvmap(legLgeo, 2,  4, 16,  4,  4, 3);
+		uvmap(legLgeo, 3,  8, 20,  4, -4, 1);
+		uvmap(legLgeo, 1, 12, 20, -4, 12);
+		uvmap(legLgeo, 0,  4, 20, -4, 12);
+		this.model.add(this.legL);
+		
+		////////////////////////////////////////////////////////////////////////
+		// Right leg
+		var legRgeo	= new THREE.CubeGeometry(4, 12, 4);
+		for(var i=0; i < 8; i+=1) {
+			legRgeo.vertices[i].y -= 6;
+		}
+		this.legR = new THREE.Mesh(legRgeo, material);
+		this.legR.position.x = -2;
+		this.legR.position.y = -6;
+		uvmap(legRgeo, 4,  4, 20,  4, 12);
+		uvmap(legRgeo, 5, 12, 20,  4, 12);
+		uvmap(legRgeo, 2,  8, 16, -4,  4, 3);
+		uvmap(legRgeo, 3, 12, 20, -4, -4, 1);
+		uvmap(legRgeo, 1,  0, 20,  4, 12);
+		uvmap(legRgeo, 0,  8, 20,  4, 12);
+		this.model.add(this.legR);	
+
+		////////////////////////////////////////////////////////////////////////
+		// Body
+		var bodygeo	= new THREE.CubeGeometry(8, 12, 4);
+		this.body = new THREE.Mesh(bodygeo, material);
+		uvmap(bodygeo, 4, 20, 20, 8, 12);
+		uvmap(bodygeo, 5, 32, 20, 8, 12);
+		uvmap(bodygeo, 2, 20, 16, 8, 4, 1);
+		uvmap(bodygeo, 3, 28, 16, 8, 4, 3);
+		uvmap(bodygeo, 1, 16, 20, 4, 12);
+		uvmap(bodygeo, 0, 28, 20, 4, 12);
+		this.model.add(this.body);
+		
+		////////////////////////////////////////////////////////////////////////
+		// Left arm
+		var armLgeo	= new THREE.CubeGeometry(4, 12, 4);
+		for(var i=0; i < 8; i+=1) {
+			armLgeo.vertices[i].y -= 5;
+		}
+		this.armL = new THREE.Mesh(armLgeo, material);
+		this.armL.name = "armL"
+		this.armL.position.x = 6;
+		this.armL.position.y = 5;
+		this.armL.rotation.z = Math.PI/32;
+		uvmap(armLgeo, 4, 48, 20, -4, 12);
+		uvmap(armLgeo, 5, 56, 20, -4, 12);
+		uvmap(armLgeo, 2, 48, 16, -4,  4, 1);
+		uvmap(armLgeo, 3, 52, 16, -4,  4, 3);
+		uvmap(armLgeo, 1, 52, 20, -4, 12);
+		uvmap(armLgeo, 0, 44, 20, -4, 12);
+		this.model.add(this.armL);
+		
+		////////////////////////////////////////////////////////////////////////
+		// Right arm
+		var armRgeo	= new THREE.CubeGeometry(4, 12, 4);
+		for(var i=0; i < 8; i+=1) {
+			armRgeo.vertices[i].y -= 5;
+		}
+		this.armR = new THREE.Mesh(armRgeo, material);
+		this.armR.position.x = -6;
+		this.armR.position.y =  5;
+		this.armR.rotation.z = -Math.PI/32;
+		uvmap(armRgeo, 4, 44, 20, 4, 12);
+		uvmap(armRgeo, 5, 52, 20, 4, 12);
+		uvmap(armRgeo, 2, 44, 16, 4, 4, 1);
+		uvmap(armRgeo, 3, 48, 16, 4, 4, 3);
+		uvmap(armRgeo, 1, 40, 20, 4, 12);
+		uvmap(armRgeo, 0, 48, 20, 4, 12);
+		this.model.add(this.armR);
+
+		// Head
+		var headgeo	= new THREE.CubeGeometry(8, 8, 8);
+		this.head = new THREE.Mesh(headgeo, material);
+		this.head.position.y = 10;
+		//this.head.rotation.y = -Math.PI/2;
+		uvmap(headgeo, 4,  8, 8, 8, 8); // left 5 // face 0
+		uvmap(headgeo, 5, 24, 8, 8, 8); // right 4 // back 1
+		uvmap(headgeo, 2,  8, 0, 8, 8, 0); //top 2 // top 2 ++ 
+		uvmap(headgeo, 3, 16, 0, 8, 8, 0); // bottom 3 // bottom 3
+		uvmap(headgeo, 1, 0, 8, 8, 8); // face 0 // right 4
+		uvmap(headgeo, 0, 16, 8, 8, 8); // back 1 // left 5
+		this.model.add(this.head);
+		
+	}
+
+</script>
+</body>
+</html>
